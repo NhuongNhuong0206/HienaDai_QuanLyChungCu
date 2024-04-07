@@ -25,7 +25,12 @@ class Car_card(BaseModel):
 
 class People(BaseModel):
     name_user = models.CharField(max_length=50)
-    # birthday = DateTimeField()
+    birthday = models.DateTimeField(null=True, blank=True)
+    sex = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, null=False)
+    email = models.CharField(max_length=20)
+    expiry = models.IntegerField(null=False)#Hạn sử dụng nhà
+
 
     def __str__(self):
         return self.name_user
