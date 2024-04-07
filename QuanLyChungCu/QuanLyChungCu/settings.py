@@ -11,16 +11,26 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import pymysql
+pymysql.version_info = ( 1,4,3, "final", 0)
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'QlChungCu.User'
-# MEDIA_ROOT = '%s/QlChungCu/static/' % BASE_DIR
+
+import cloudinary
+
+cloudinary.config(
+    cloud_name="ddnyivqit",
+    api_key="567661652263927",
+    api_secret="YyAUu40H--mXhNiSVNc5deNceo0"
+)
 
 
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_ROOT = '%s/QlChungCu/static/' % BASE_DIR
 
 
 # Quick-start development settings - unsuitable for production
