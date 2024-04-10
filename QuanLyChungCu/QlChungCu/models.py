@@ -53,16 +53,16 @@ class Goods(BaseModel):
 
 
 class People(BaseModel):
-    name_people = models.CharField(max_length=50, default=None)
-    birthday = models.DateTimeField(null=True, blank=True, default=None)
-    sex = models.CharField(max_length=20, default=None)
-    phone = models.CharField(max_length=20, null=False, default=None)
-    email = models.CharField(max_length=20, default=None)
-    expiry = models.IntegerField(null=False, default=None)#Hạn sử dụng nhà
-    ApartNum = models.CharField(max_length=20, default=None)#Số nhà
+    name_people = models.CharField(max_length=50)
+    birthday = models.DateTimeField(null=True, blank=True)
+    sex = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, null=False)
+    email = models.CharField(max_length=20)
+    expiry = models.IntegerField(null=False)#Hạn sử dụng nhà
+    ApartNum = models.CharField(max_length=20)#Số nhà
 
-    car_card = models.OneToOneField(Car_card, on_delete=models.CASCADE, default=None)
-    acount = models.OneToOneField(Acount, on_delete=models.CASCADE, default=None)
+    car_card = models.OneToOneField(Car_card, on_delete=models.CASCADE)
+    acount = models.OneToOneField(Acount, on_delete=models.CASCADE)
     box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
