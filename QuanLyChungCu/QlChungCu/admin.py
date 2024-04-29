@@ -3,7 +3,7 @@ from QlChungCu.models import Box, Acount, AcountAdmin
 
 
 class AcountAdminSet(admin.ModelAdmin):
-    fields = ['name_acount', 'pass_acount', 'avatar_acount', 'role_acount', 'admin']
+    fields = ['name_acount', 'pass_acount', 'avatar_acount', 'admin']
     ssearch_fields = ['id', 'name']
 
     #

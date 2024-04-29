@@ -84,8 +84,9 @@ class Bill(BaseModel):
     name_bill = models.CharField(max_length=255)
     money = models.FloatField()
     decription = models.CharField(max_length=255)
+    type_bill = models.FloatField(default=3)# 1: Phí tiền điện, 2: Phí tiền nước, 3: Phí khác
 
-    people = models.ForeignKey(People, on_delete=models.SET_NULL, null=True)
+    Acount_id = models.ForeignKey(Acount, on_delete=models.SET_NULL, null=True)
 
     
 

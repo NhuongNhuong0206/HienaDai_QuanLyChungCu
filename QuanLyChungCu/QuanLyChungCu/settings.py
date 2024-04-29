@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'QlChungCu.apps.QlchungcuConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
