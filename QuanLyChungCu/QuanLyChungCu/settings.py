@@ -98,10 +98,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'QlChungCudb',
         'USER': 'root',
-        'PASSWORD': 'Admin@123',
+        'PASSWORD': '123456',
         'HOST': ''  # mặc định localhost
     }
 }
+
+
 
 
 # Password validation

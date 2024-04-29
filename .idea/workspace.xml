@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0c997f24-4672-46f7-b181-c2d5625730e3" name="Changes" comment="" />
+    <list default="true" id="0c997f24-4672-46f7-b181-c2d5625730e3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/.idea/QuanLyChungCu.iml" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/.idea/QuanLyChungCu.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/.idea/misc.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,9 +17,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2ehwZeWmX5ts4d5MQ8TTMU1Nmld" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -26,7 +30,8 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/Myseft/Ki2_nam3/HienDai/TH/BTL/HienaDai_QuanLyChungCu/QuanLyChungCu"
+    "last_opened_file_path": "D:/BTL_CCNLTHD/HienaDai_QuanLyChungCu/QuanLyChungCu",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
