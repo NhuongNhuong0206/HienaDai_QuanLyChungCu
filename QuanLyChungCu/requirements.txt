@@ -12,6 +12,7 @@ colorama==0.4.6
 cryptography==38.0.4
 distlib==0.3.6
 Django==5.0.4
+djangorestframework==3.15.1
 filelock==3.8.0
 Flask==2.2.2
 Flask-Admin==1.6.0

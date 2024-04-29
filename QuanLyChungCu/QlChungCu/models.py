@@ -20,29 +20,31 @@ class BaseModel(models.Model):
         # ordering = ['-id']
 
 
-class Admin(BaseModel):
-    area_admin = models.CharField(max_length=255)
+class AcountAdmin(BaseModel):
+    nameacount_admin = models.CharField(max_length=25, null=True)
+    passacount_admin = models.CharField(max_length=25,null=True)
+    area_admin = models.CharField(max_length=255, null=True)
 
 
 class Car_card(BaseModel):
     area = models.CharField(max_length=255)
 
-    admin = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True)
+    admin = models.ForeignKey(AcountAdmin, on_delete=models.SET_NULL, null=True)
 
 
 class Acount(BaseModel):
     name_acount = models.CharField(max_length=25)
     pass_acount = models.CharField(max_length=25)
-    avatar_acount = models.CharField(max_length=255)
+    avatar_acount = models.ImageField(upload_to='QlChungCu/%Y/%m')
 
-    admin = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True)
+    admin = models.ForeignKey(AcountAdmin, on_delete=models.SET_NULL, null=True)
 
 
 class Box(BaseModel):
     stand = models.CharField(max_length=255)
     describe = models.CharField(max_length=255)
 
-    admin = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True)
+    admin = models.ForeignKey(AcountAdmin, on_delete=models.SET_NULL, null=True)
 
 
 class Goods(BaseModel):
@@ -66,7 +68,7 @@ class People(BaseModel):
     box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.name_user
+        return self.name_people
 
 
 class Letters(BaseModel):
@@ -75,15 +77,16 @@ class Letters(BaseModel):
     img_letter = CloudinaryField()
 
     people = models.ForeignKey(People, on_delete=models.SET_NULL, null=True)
-    admin = models.ManyToManyField(Admin)
+    admin = models.ManyToManyField(AcountAdmin)
 
 
 class Bill(BaseModel):
     name_bill = models.CharField(max_length=255)
     money = models.FloatField()
     decription = models.CharField(max_length=255)
+    type_bill = models.FloatField(default=3)# 1: Phí tiền điện, 2: Phí tiền nước, 3: Phí khác
 
-    people = models.ForeignKey(People, on_delete=models.SET_NULL, null=True)
+    Acount_id = models.ForeignKey(Acount, on_delete=models.SET_NULL, null=True)
 
     
 
