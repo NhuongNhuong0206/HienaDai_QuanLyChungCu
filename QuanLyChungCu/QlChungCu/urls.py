@@ -1,7 +1,11 @@
-from rest_framework import viewsets, generics
-from QlChungCu.models import People
-from QlChungCu import serializers
+from django.urls import path, include, re_path
+from QlChungCu import views
+from rest_framework import routers
 
 
-class PeopleViewSet(viewsets.ViewSet, generics.ListAPIView):
-    queryset = People.object.filter
+r = routers.DefaultRouter()
+r.register('People', views.PeopleViewSet)
+
+urlpatterns = [
+    path('', include(r.urls)),
+]

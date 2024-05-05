@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import pymysql
-pymysql.version_info = ( 1,4,3, "final", 0)
+
+pymysql.version_info = (1, 4, 3, "final", 0)
 pymysql.install_as_MySQLdb()
 
 AUTH_USER_MODEL = 'QlChungCu.User'
@@ -24,14 +25,12 @@ cloudinary.config(
     api_secret="YyAUu40H--mXhNiSVNc5deNceo0"
 )
 
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_ROOT = '%s/QlChungCu/static/' % BASE_DIR
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -44,9 +43,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -58,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'QlChungCu.apps.QlchungcuConfig',
     'rest_framework',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -90,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'QuanLyChungCu.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -99,13 +95,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'QlChungCudb',
         'USER': 'root',
-        'PASSWORD': '123456',
+        'PASSWORD': 'Admin@123',
         'HOST': ''  # mặc định localhost
     }
 }
-
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -125,7 +118,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -136,7 +128,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

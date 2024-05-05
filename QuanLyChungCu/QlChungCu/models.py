@@ -88,6 +88,6 @@ class Bill(BaseModel):
 
     Acount_id = models.ForeignKey(Acount, on_delete=models.SET_NULL, null=True)
 
-    
+
 
 
