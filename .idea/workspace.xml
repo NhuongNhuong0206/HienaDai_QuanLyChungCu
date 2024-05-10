@@ -2,9 +2,30 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0c997f24-4672-46f7-b181-c2d5625730e3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/.idea/QuanLyChungCu.iml" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/.idea/QuanLyChungCu.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HienDai" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/migrations/0011_alter_acountadmin_passacount_admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/migrations/0012_alter_acountadmin_passacount_admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_2O8tT3W.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_4c615GP.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_Dy9mEo6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_MsQtrUG.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_Ppp9qwv.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_RvYF9YJ.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_YpaAefU.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_nVyg9wG.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_orwIzqk.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_tmKXu8u.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/QlChungCu/2024/05/AccountUser1_uiDYAIJ.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/css/styleUser.css" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/static/css/styleAcount.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QlChungCu/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QuanLyChungCu/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QuanLyChungCu/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/QuanLyChungCu/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/QuanLyChungCu/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QuanLyChungCu/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/QuanLyChungCu/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,11 +50,18 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Merging main",
     "last_opened_file_path": "D:/BTL_CCNLTHD/HienaDai_QuanLyChungCu/QuanLyChungCu",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-babbdf50b680-746f403e7f0c-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.15989.155" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

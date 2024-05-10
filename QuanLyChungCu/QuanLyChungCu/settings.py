@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'QlChungCu.apps.QlchungcuConfig',
     'rest_framework',
     'drf_yasg',
+    'oauth2_provider',
+    'ckeditor',
+    'ckeditor_uploader'
 ]
 
 MIDDLEWARE = [
@@ -85,7 +88,15 @@ TEMPLATES = [
     },
 ]
 
+CKEDITOR_UPLOAD_PATH = "ckeditors/images/%Y/%m"
+
 WSGI_APPLICATION = 'QuanLyChungCu.wsgi.application'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -93,7 +104,7 @@ WSGI_APPLICATION = 'QuanLyChungCu.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'QlChungCudb',
+        'NAME': 'QLCDdb',
         'USER': 'root',
         'PASSWORD': 'Admin@123',
         'HOST': ''  # mặc định localhost
@@ -132,9 +143,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CLIENT_ID = 'JtzDKPoyGsBUuOUYAeiGOO3tZIYTrI1yOVVeXT0i'
+CLIENT_SECRET = 'KEyUJlDBu5qBIxvfDraodFSlLTt3RtokHR1LGZalCupw8YZK3cQYK7NFEH9oW1Qs9cZ4Rxbxj5DXwZvZ8lUiSGXGhiAUAMSIPwuZWIcXTm4TtcA0J9Nii64X8N5sOrkI'

@@ -1,9 +1,81 @@
-from QlChungCu.models import People
+#serializers chuyển dữ liệu phức tạp từ Queryset thành kiểu dữ liệu đơn gian như Json để chuyển ra bên ngoài
+#Có nhiều cách khai báo serializer: + Không cần model
+#                                   + liên kết với model: ở đây sử dụng cách này
+
+from QlChungCu.models import People, User, CarCard, Box, Goods, Letters, Bill
 from rest_framework import serializers
 
 
 class PeopleSerializers(serializers.ModelSerializer):
     class Meta:
-
         model = People
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = '__all__'
+
+
+class CarCardSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = CarCard
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = '__all__'
+
+
+class UserSerializers(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['avatar_acount'] = instance.avatar_acount.name
+
+        return rep
+    class Meta:
+        model = User
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = ['id', 'username', 'password', 'avatar_acount', 'change_password_required',]
+
+#         extra_kwargs = {# các trường chí ghi chớ không đọc
+#                 'pass_acount': {
+#                     'write_only': 'True'
+#                 },
+#                 'admin': {
+#                     'write_only': 'True'
+#                 }
+#         }
+
+class UpdateResidentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['password', 'avatar_acount', ]
+        extra_kwargs = {
+            'pass_acount': {
+                'write_only': True  # Sửa 'true' thành True
+            }
+        }
+
+
+
+class BoxSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Box
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = '__all__'
+
+
+class GoodsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Goods
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = '__all__'
+
+
+class LettersSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Letters
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = '__all__'
+
+
+class BillSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Bill
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
         fields = '__all__'

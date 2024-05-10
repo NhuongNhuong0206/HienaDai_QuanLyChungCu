@@ -2,56 +2,60 @@
 
 from django.db import models
 # thừa hưởng thuộc tính của nó nhưng muốn dùng của mình để chứng thực
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, AbstractBaseUser, PermissionsMixin
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from cloudinary.models import CloudinaryField
-
-
-class User(AbstractUser):
-    pass
+from ckeditor.fields import RichTextField
 
 
 class BaseModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
-    active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
         # ordering = ['-id']
 
 
-class AcountAdmin(BaseModel):
-    nameacount_admin = models.CharField(max_length=25, null=True)
-    passacount_admin = models.CharField(max_length=25,null=True)
-    area_admin = models.CharField(max_length=255, null=True)
+class User(AbstractUser):
+    class EnumRole(models.TextChoices):
+        RESIDENT = 'Resident'
+        ADMIN = 'Admin'
 
+    user_role = models.CharField(max_length=20, choices=EnumRole.choices, default=EnumRole.RESIDENT)
+    avatar_acount = models.ImageField(upload_to='QlChungCu/%Y/%m', null=True)
+    change_password_required = models.BooleanField(default=False)
 
-class Car_card(BaseModel):
-    area = models.CharField(max_length=255)
+    def save(self, *args, **kwargs):
+        # Băm mật khẩu nếu mật khẩu đã được thiết lập
+        if self.password:
+            self.set_password(self.password)
+        super().save(*args, **kwargs)
 
-    admin = models.ForeignKey(AcountAdmin, on_delete=models.SET_NULL, null=True)
-
-
-class Acount(BaseModel):
-    name_acount = models.CharField(max_length=25)
-    pass_acount = models.CharField(max_length=25)
-    avatar_acount = models.ImageField(upload_to='QlChungCu/%Y/%m')
-
-    admin = models.ForeignKey(AcountAdmin, on_delete=models.SET_NULL, null=True)
+    def __str__(self):
+        return self.username
 
 
 class Box(BaseModel):
+    class EnumStatusBox(models.TextChoices):
+        WAITING = 'waiting to receive'
+        RECEIVED = 'received'
+
     stand = models.CharField(max_length=255)
     describe = models.CharField(max_length=255)
+    box_status = models.CharField(max_length=50, choices=EnumStatusBox.choices,
+                                  default=EnumStatusBox.WAITING)  # trạng thái của Box
 
-    admin = models.ForeignKey(AcountAdmin, on_delete=models.SET_NULL, null=True)
+    user_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 
 class Goods(BaseModel):
     name_goods = models.CharField(max_length=255)
     img_goods = CloudinaryField()
-
-    box = models.ForeignKey(Box,on_delete=models.SET_NULL, null=True)
+    received_Goods = models.BooleanField(default=False)
+    box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
 
 
 class People(BaseModel):
@@ -60,34 +64,55 @@ class People(BaseModel):
     sex = models.CharField(max_length=20)
     phone = models.CharField(max_length=20, null=False)
     email = models.CharField(max_length=20)
-    expiry = models.IntegerField(null=False)#Hạn sử dụng nhà
-    ApartNum = models.CharField(max_length=20)#Số nhà
+    expiry = models.IntegerField(null=False)  # Hạn sử dụng nhà
+    ApartNum = models.CharField(max_length=20)  # Số nhà
 
-    car_card = models.OneToOneField(Car_card, on_delete=models.CASCADE)
-    acount = models.OneToOneField(Acount, on_delete=models.CASCADE)
+    # car_card = models.OneToOneField(CarCard, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, default=None)
     box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name_people
 
 
+class CarCard(BaseModel):
+    class EnumStatusCard(models.TextChoices):
+        UN = 'Unconfimred'
+        WAIT = 'Wait_for_confirmation'
+        CONFIRMER = 'Confirmed'
+
+    area = models.CharField(max_length=255)
+    status_card = models.CharField(max_length=50, choices=EnumStatusCard.choices,
+                                   default=EnumStatusCard.UN)  # Trạng thái thẻ xe
+    vehicle_type = models.CharField(max_length=255, default='motorbike')
+    user_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    people = models.OneToOneField(People, on_delete=models.CASCADE, null=True)
+
+
 class Letters(BaseModel):
-    title_letter = models.TextField()
-    content = models.TextField()
+    title_letter = models.TextField(null=True)
+    content = RichTextField(null=True)
     img_letter = CloudinaryField()
 
     people = models.ForeignKey(People, on_delete=models.SET_NULL, null=True)
-    admin = models.ManyToManyField(AcountAdmin)
-
+    user_admin = models.ManyToManyField(User)
 
 class Bill(BaseModel):
+    class EnumStatusBill(models.TextChoices):
+        UNPAID = 'Unpaid'
+        PAID = 'paid '
+
+    class EnumTypeBill(models.TextChoices):
+        ELECTRICITY = 'Electricity'
+        WATER = 'Water '
+        OTHER = 'Other'
+
     name_bill = models.CharField(max_length=255)
     money = models.FloatField()
     decription = models.CharField(max_length=255)
-    type_bill = models.FloatField(default=3)# 1: Phí tiền điện, 2: Phí tiền nước, 3: Phí khác
+    type_bill = models.CharField(max_length=50, choices=EnumTypeBill.choices,
+                                 default=EnumTypeBill.OTHER)
+    status_bill = models.CharField(max_length=50, choices=EnumStatusBill.choices,
+                                   default=EnumStatusBill.UNPAID)
 
-    Acount_id = models.ForeignKey(Acount, on_delete=models.SET_NULL, null=True)
-
-
-
-
+    user_resident = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
