@@ -55,7 +55,7 @@ class UserResidentSet(admin.ModelAdmin):
 
 
 class CarCardSet(admin.ModelAdmin):
-    list_display = ['id', 'area', 'status_card', 'vehicle_type', 'user_admin', 'people', 'edit', ]
+    list_display = ['id', 'area', 'status_card', 'vehicle_type', 'user', 'people', 'edit', ]
     search_fields = ['id', 'area']
 
     def edit(self, obj):

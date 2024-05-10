@@ -83,9 +83,9 @@ class CarCard(BaseModel):
 
     area = models.CharField(max_length=255)
     status_card = models.CharField(max_length=50, choices=EnumStatusCard.choices,
-                                   default=EnumStatusCard.UN)  # Trạng thái thẻ xe
+                                   default=EnumStatusCard.WAIT)  # Trạng thái thẻ xe
     vehicle_type = models.CharField(max_length=255, default='motorbike')
-    user_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     people = models.OneToOneField(People, on_delete=models.CASCADE, null=True)
 
 

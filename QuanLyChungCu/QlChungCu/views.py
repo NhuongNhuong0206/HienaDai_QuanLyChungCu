@@ -72,15 +72,33 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
     queryset = CarCard.objects.filter(is_active=True)
     serializer_class = CarCardSerializers
 
+    def get_permissions(self):
+        if self.action in ['create_carcard',]:
+            return [permissions.IsAuthenticated()]
+
+        return [permissions.AllowAny()]
+
     @action(methods=['get'], url_path='get_card', detail=True)# Người dùng xem thông tin thẻ xe của mình
     def get_carcard(self, request, pk):
         # Lấy người dùng đang đăng nhập từ request
-        current_user = request.user  # Lấy thông tin thẻ xe của người dùng hiện tại
-        carcard_user = CarCard.objects.filter(people__user=current_user)
-        serialized_data = serializers.CarCardSerializers(carcard_user, many=True).data
+        current_user = request.user
+        # Lấy thông tin các thẻ xe mà người dùng đã đăng ký
+        carcard_user = CarCard.objects.filter(user=current_user)
+        serialized_data = self.serializer_class(carcard_user, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
 
-    # @action(methods=['post'], url_path='update_card', detail=True)# Người dùng đăng ký thẻ xe cho mình hoặc người thân
+    @action(methods=['post'], url_path='update_card', detail=False)# Người dùng đăng ký thẻ xe cho mình hoặc người thân
+
+    def create_carcard(self, request):
+        current_user = request.user
+
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=current_user, status_card=CarCard.EnumStatusCard.WAIT) # Tạo 1 thẻ xe gán vào user đang đăng nhập
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
