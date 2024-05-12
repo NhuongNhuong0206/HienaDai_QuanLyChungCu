@@ -7,21 +7,21 @@ from .form import *
 
 
 class UserResidentSet(admin.ModelAdmin):
-    list_display = ['id', 'username', 'avatar_acount', 'change_password_required', 'user_role', 'edit']
+    list_display = ['id', 'username', 'change_password_required','avatar_acount', 'edit']
     search_fields = ['username']
     fieldsets = (
         (None, {'fields': ('username', 'password', 'user_role')}),
         ('Permission', {'fields': ('is_staff', 'is_active', 'is_superuser', 'user_permissions')}),
-        ('Personal info', {'fields': ('avatar_acount', 'change_password_required',)}),
+        ('Personal info', {'fields': ('change_password_required','avatar_acount')}),
     )
 
     ordering = ('id',)
     filter_horizontal = ()
-    readonly_fields = ['my_avatar_acount']
+    readonly_fields = ('my_avatar_acount',)
 
-    def my_avatar_acount(self, User):
+    def my_avatar_acount(self, user):
         if User.avatar_acount:
-            return mark_safe(f"<img width='200' src='/static/{User.avatar_acount.name}' />")
+            return mark_safe(f"<img width='200' src='{user.avatar_acount.url}' />")
 
     def get_queryset(self, request):
         # Lấy queryset gốc
@@ -72,7 +72,7 @@ class CarCardInlineAdmin(admin.StackedInline):
 
 class PeopleSet(admin.ModelAdmin):
     inlines = [CarCardInlineAdmin, ]
-    list_display = ['id', 'name_people', 'sex', 'phone', 'birthday', 'email', 'ApartNum', 'edit']
+    list_display = ['id', 'name_people', 'sex', 'phone', 'birthday', 'ApartNum', 'edit']
     search_fields = ['id', 'name_people']
 
     def edit(self, obj):

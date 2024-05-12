@@ -49,7 +49,7 @@ class UpdateResidentSerializer(serializers.ModelSerializer):
         fields = ['password', 'avatar_acount', ]
         extra_kwargs = {
             'pass_acount': {
-                'write_only': True  # Sửa 'true' thành True
+                'write_only': True
             }
         }
 
@@ -58,7 +58,7 @@ class BoxSerializers(serializers.ModelSerializer):
     class Meta:
         model = Box
         # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = '__all__'
+        fields = ['id', 'stand', 'describe', 'box_status',]
 
 
 class GoodsSerializers(serializers.ModelSerializer):

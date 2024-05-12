@@ -24,6 +24,7 @@ from .serializers import PeopleSerializers, UserSerializers, CarCardSerializers,
 # # RetrieveUpdateDestroyAPIView: GET + PUT + PATCH + DELETE /Urlname/{id}/
 
 
+# API THÔNG TIN USER RESIDENT
 class ResidentLoginViewset(viewsets.ViewSet, generics.ListAPIView):  # API Người dùng đăng nhập
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializers
@@ -54,18 +55,26 @@ class ResidentLoginViewset(viewsets.ViewSet, generics.ListAPIView):  # API Ngư�
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        queryset = self.queryset
-
-        q = self.request.query_params.get('q')
-        if q:
-            queryset = queryset.filter(name_acount__icontains=q)
-
-        ad_id = self.request.query_params.get('admin_id')
-
-        if ad_id:
-            queryset = queryset.filter(admin_id=ad_id)
-        return queryset
+    # Thong tin tai khoang User
+    @action(methods=['get'], url_path='get_user', detail=False)  # Người dùng xem thông tin user đăng nhập của mình
+    def get_user(self, request):
+        # Lấy người dùng đang đăng nhập từ request
+        current_user = request.user
+        user = User.objects.filter(id=current_user.id).first()
+        serialized = self.serializer_class(user).data
+        return Response(serialized, status=status.HTTP_200_OK)
+    # def get_queryset(self):
+    #     queryset = self.queryset
+    #
+    #     q = self.request.query_params.get('q')
+    #     if q:
+    #         queryset = queryset.filter(name_acount__icontains=q)
+    #
+    #     ad_id = self.request.query_params.get('admin_id')
+    #
+    #     if ad_id:
+    #         queryset = queryset.filter(admin_id=ad_id)
+    #     return queryset
 
 
 # APTI THẺ GIỮ XE
@@ -74,12 +83,12 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = CarCardSerializers
 
     def get_permissions(self):
-        if self.action in ['create_carcard',]:
+        if self.action in ['create_carcard', ]:
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
 
-    @action(methods=['get'], url_path='get_card', detail=True)# Người dùng xem thông tin thẻ xe của mình
+    @action(methods=['get'], url_path='get_card', detail=True)  # Người dùng xem thông tin thẻ xe của mình
     def get_carcard(self, request, pk):
         # Lấy người dùng đang đăng nhập từ request
         current_user = request.user
@@ -88,20 +97,21 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
         serialized_data = self.serializer_class(carcard_user, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
 
-    @action(methods=['post'], url_path='update_card', detail=False)# Người dùng đăng ký thẻ xe cho mình hoặc người thân
-
+    @action(methods=['post'], url_path='update_card',
+            detail=False)  # Người dùng đăng ký thẻ xe cho mình hoặc người thân
     def create_carcard(self, request):
         current_user = request.user
 
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            serializer.save(user=current_user, status_card=CarCard.EnumStatusCard.WAIT) # Tạo 1 thẻ xe gán vào user đang đăng nhập
+            serializer.save(user=current_user,
+                            status_card=CarCard.EnumStatusCard.WAIT)  # Tạo 1 thẻ xe gán vào user đang đăng nhập
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# API HÓA ĐƠN
 class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     def get_permissions(self):
@@ -112,7 +122,8 @@ class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     queryset = Bill.objects.filter(is_active=True)
     serializer_class = BillSerializers
-    #Xem hóa đơn của người dùng hiện có
+
+    # Xem hóa đơn của người dùng hiện có
     @action(methods=['get'], url_path='get_bill', detail=False)
     def get_bill(self, request):
         # Lấy người dùng đang đăng nhập từ request
@@ -122,7 +133,7 @@ class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
         serialized_data = self.serializer_class(bill_user, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
 
-    # Người dùng tìm kiếm hóa ơn theo tên và id
+    # Người dùng tìm kiếm hóa đơn theo tên và id
     @action(methods=['get'], url_path='search_bill', detail=True)
     def search_bill(self, request, pk):
         current_user = request.user
@@ -135,16 +146,18 @@ class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
             bills = bills.filter(id=bill_id)
         if bill_name:
             # Sử dụng Q object để tìm kiếm theo tên bill
-            bills = bills.filter(Q(name__icontains=bill_name))
+            bills = bills.filter(Q(name_bill__icontains=bill_name))# icontains : Tìm kiếm không phân biệt hoa thường
 
         serialized_data = self.serializer_class(bills, many=True).data
+
+        if not serialized_data:  # Kiểm tra có hóa đơn nào phù hợp hay không
+            return Response({"message": "No bills found with the given criteria"}, status=status.HTTP_404_NOT_FOUND)
         return Response(serialized_data, status=status.HTTP_200_OK)
 
-
-
-
-
-
+# API TỦ ĐỒ
+class BoxViewSet(viewsets.ViewSet, generics.ListAPIView):
+    queryset = Box.objects.filter(is_active=True)
+    serializer_class = BoxSerializers
 
 # class UserResidentViewset(viewsets.ViewSet, generics.ListAPIView):
 #     queryset = User.objects.filter(is_active=True, user_role ='Resident')  # Lấy các tài khoản cư dân đang active

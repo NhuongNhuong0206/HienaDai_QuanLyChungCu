@@ -25,7 +25,7 @@ class User(AbstractUser):
         ADMIN = 'Admin'
 
     user_role = models.CharField(max_length=20, choices=EnumRole.choices, default=EnumRole.RESIDENT)
-    avatar_acount = models.ImageField(upload_to='QlChungCu/%Y/%m', null=True)
+    avatar_acount = CloudinaryField(null=True)
     change_password_required = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -50,6 +50,10 @@ class Box(BaseModel):
 
     user_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    def __str__(self):
+        return self.stand
+
+
 
 class Goods(BaseModel):
     name_goods = models.CharField(max_length=255)
@@ -62,10 +66,9 @@ class People(BaseModel):
     name_people = models.CharField(max_length=50)
     birthday = models.DateTimeField(null=True, blank=True)
     sex = models.CharField(max_length=20)
-    phone = models.CharField(max_length=20, null=False)
-    email = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, null=True)
     expiry = models.IntegerField(null=False)  # Hạn sử dụng nhà
-    ApartNum = models.CharField(max_length=20)  # Số nhà
+    ApartNum = models.CharField(max_length=20, null=True)  # Số nhà
 
     # car_card = models.OneToOneField(CarCard, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=None)
@@ -73,6 +76,8 @@ class People(BaseModel):
 
     def __str__(self):
         return self.name_people
+
+
 
 
 class CarCard(BaseModel):
@@ -109,7 +114,7 @@ class Bill(BaseModel):
 
     name_bill = models.CharField(max_length=255)
     money = models.FloatField()
-    decription = models.CharField(max_length=255) # ghi chu
+    decription = models.CharField(max_length=255)# ghi chu
     type_bill = models.CharField(max_length=50, choices=EnumTypeBill.choices,
                                  default=EnumTypeBill.OTHER)
     status_bill = models.CharField(max_length=50, choices=EnumStatusBill.choices,

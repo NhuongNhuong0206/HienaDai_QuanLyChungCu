@@ -20,11 +20,10 @@ AUTH_USER_MODEL = 'QlChungCu.User'
 import cloudinary
 
 cloudinary.config(
-    cloud_name="ddnyivqit",
-    api_key="567661652263927",
-    api_secret="YyAUu40H--mXhNiSVNc5deNceo0"
+    cloud_name="difzsnxvh",
+    api_key="222688138536979",
+    api_secret="PB88FJe9bAI-Pn23EIHPr2KdcS8"
 )
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -88,7 +87,7 @@ TEMPLATES = [
     },
 ]
 
-CKEDITOR_UPLOAD_PATH = "ckeditors/images/%Y/%m"
+CKEDITOR_UPLOAD_PATH = "ckeditors/images"
 
 WSGI_APPLICATION = 'QuanLyChungCu.wsgi.application'
 
