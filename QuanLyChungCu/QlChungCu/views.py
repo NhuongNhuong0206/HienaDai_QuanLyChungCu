@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, generics, status, parsers, permissions
 from QlChungCu import serializers, paginators
 from django.shortcuts import render
@@ -67,7 +68,7 @@ class ResidentLoginViewset(viewsets.ViewSet, generics.ListAPIView):  # API Ngư�
         return queryset
 
 
-# APT THẺ GIỮ XE
+# APTI THẺ GIỮ XE
 class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
     queryset = CarCard.objects.filter(is_active=True)
     serializer_class = CarCardSerializers
@@ -98,6 +99,47 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
             serializer.save(user=current_user, status_card=CarCard.EnumStatusCard.WAIT) # Tạo 1 thẻ xe gán vào user đang đăng nhập
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
+
+    def get_permissions(self):
+        if self.action in ['get_bill']:
+            return [permissions.IsAuthenticated()]
+
+        return [permissions.AllowAny()]
+
+    queryset = Bill.objects.filter(is_active=True)
+    serializer_class = BillSerializers
+    #Xem hóa đơn của người dùng hiện có
+    @action(methods=['get'], url_path='get_bill', detail=False)
+    def get_bill(self, request):
+        # Lấy người dùng đang đăng nhập từ request
+        current_user = request.user
+        # Lấy thông tin các Hóa đơn mà người dùng đang có
+        bill_user = Bill.objects.filter(user_resident=current_user.id)
+        serialized_data = self.serializer_class(bill_user, many=True).data
+        return Response(serialized_data, status=status.HTTP_200_OK)
+
+    # Người dùng tìm kiếm hóa ơn theo tên và id
+    @action(methods=['get'], url_path='search_bill', detail=True)
+    def search_bill(self, request, pk):
+        current_user = request.user
+        bill_id = request.query_params.get('id', None)
+        bill_name = request.query_params.get('name', None)
+
+        bills = Bill.objects.filter(user_resident=current_user.id)
+
+        if bill_id:
+            bills = bills.filter(id=bill_id)
+        if bill_name:
+            # Sử dụng Q object để tìm kiếm theo tên bill
+            bills = bills.filter(Q(name__icontains=bill_name))
+
+        serialized_data = self.serializer_class(bills, many=True).data
+        return Response(serialized_data, status=status.HTTP_200_OK)
+
 
 
 

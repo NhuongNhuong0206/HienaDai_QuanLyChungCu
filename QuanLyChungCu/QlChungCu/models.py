@@ -109,7 +109,7 @@ class Bill(BaseModel):
 
     name_bill = models.CharField(max_length=255)
     money = models.FloatField()
-    decription = models.CharField(max_length=255)
+    decription = models.CharField(max_length=255) # ghi chu
     type_bill = models.CharField(max_length=50, choices=EnumTypeBill.choices,
                                  default=EnumTypeBill.OTHER)
     status_bill = models.CharField(max_length=50, choices=EnumStatusBill.choices,

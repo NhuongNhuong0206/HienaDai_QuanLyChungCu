@@ -1,5 +1,5 @@
-#serializers chuyển dữ liệu phức tạp từ Queryset thành kiểu dữ liệu đơn gian như Json để chuyển ra bên ngoài
-#Có nhiều cách khai báo serializer: + Không cần model
+# serializers chuyển dữ liệu phức tạp từ Queryset thành kiểu dữ liệu đơn gian như Json để chuyển ra bên ngoài
+# Có nhiều cách khai báo serializer: + Không cần model
 #                                   + liên kết với model: ở đây sử dụng cách này
 
 from QlChungCu.models import People, User, CarCard, Box, Goods, Letters, Bill
@@ -27,10 +27,12 @@ class UserSerializers(serializers.ModelSerializer):
         rep['avatar_acount'] = instance.avatar_acount.name
 
         return rep
+
     class Meta:
         model = User
         # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = ['id', 'username', 'password', 'avatar_acount', 'change_password_required',]
+        fields = ['id', 'username', 'password', 'avatar_acount', 'change_password_required', ]
+
 
 #         extra_kwargs = {# các trường chí ghi chớ không đọc
 #                 'pass_acount': {
@@ -50,7 +52,6 @@ class UpdateResidentSerializer(serializers.ModelSerializer):
                 'write_only': True  # Sửa 'true' thành True
             }
         }
-
 
 
 class BoxSerializers(serializers.ModelSerializer):
@@ -78,4 +79,7 @@ class BillSerializers(serializers.ModelSerializer):
     class Meta:
         model = Bill
         # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = '__all__'
+        fields = ['id', 'name_bill', 'money', 'decription', 'type_bill', 'status_bill', 'user_resident', 'created_date',
+                  'updated_date', ]
+
+
