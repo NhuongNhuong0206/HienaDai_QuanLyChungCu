@@ -20,7 +20,7 @@ AUTH_USER_MODEL = 'QlChungCu.User'
 import cloudinary
 
 cloudinary.config(
-    cloud_name="difzsnxvh",
+    cloud_name="chungcu",
     api_key="222688138536979",
     api_secret="PB88FJe9bAI-Pn23EIHPr2KdcS8"
 )

@@ -4,15 +4,18 @@ from QlChungCu.models import Box, User, CarCard, Goods, People, Letters, Bill
 from django.urls import reverse
 from django.utils.html import format_html
 from .form import *
+from django.urls import path
+from django.db.models import Count
+from django.template.response import TemplateResponse
 
 
 class UserResidentSet(admin.ModelAdmin):
-    list_display = ['id', 'username', 'change_password_required','avatar_acount', 'edit']
+    list_display = ['id', 'username', 'change_password_required', 'avatar_acount', 'edit']
     search_fields = ['username']
     fieldsets = (
         (None, {'fields': ('username', 'password', 'user_role')}),
         ('Permission', {'fields': ('is_staff', 'is_active', 'is_superuser', 'user_permissions')}),
-        ('Personal info', {'fields': ('change_password_required','avatar_acount')}),
+        ('Personal info', {'fields': ('change_password_required', 'avatar_acount')}),
     )
 
     ordering = ('id',)
@@ -136,6 +139,20 @@ class LettersSet(admin.ModelAdmin):
         return format_html(
             '<a href="{}" style="background-color: #4CAF50; border: none; color: white; padding: 8px 14px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 4px; cursor: pointer;">Edit</a>',
             edit_url)
+
+    class myAdminStyle(admin.AdminSite):
+        site_header = 'iStats'
+
+        def get_urls(self):
+            return [path('revenue-stats/', self.stats_view)] + super().get_urls()
+
+        def stats_view(self, request):
+            stats = Bill.objects.annotate(counter=Count('Bill__id')).values('id', 'name_bill', 'money')
+            return TemplateResponse(request, 'admin/stats.html', {
+                'stats': stats
+            })
+
+        pass
 
 
 admin.site.register(User, UserResidentSet)

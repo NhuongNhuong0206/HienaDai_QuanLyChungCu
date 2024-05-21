@@ -121,3 +121,6 @@ class Bill(BaseModel):
                                    default=EnumStatusBill.UNPAID)
 
     user_resident = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.money

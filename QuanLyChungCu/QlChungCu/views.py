@@ -154,10 +154,23 @@ class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
             return Response({"message": "No bills found with the given criteria"}, status=status.HTTP_404_NOT_FOUND)
         return Response(serialized_data, status=status.HTTP_200_OK)
 
+
 # API TỦ ĐỒ
 class BoxViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = Box.objects.filter(is_active=True)
     serializer_class = BoxSerializers
+
+    def get_box(self, request):
+        # Lấy người dùng đang đăng nhập từ request
+        current_user = request.user
+        # Lấy thông tin các Hóa đơn mà người dùng đang có
+        box_user = Box.objects.filter(user_resident=current_user.id)
+        serialized_data = self.serializer_class(box_user, many=True).data
+        return Response(serialized_data, status=status.HTTP_200_OK)
+
+
+
+
 
 # class UserResidentViewset(viewsets.ViewSet, generics.ListAPIView):
 #     queryset = User.objects.filter(is_active=True, user_role ='Resident')  # Lấy các tài khoản cư dân đang active

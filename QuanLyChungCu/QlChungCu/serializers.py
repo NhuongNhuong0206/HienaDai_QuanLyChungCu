@@ -24,7 +24,7 @@ class UserSerializers(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep['avatar_acount'] = instance.avatar_acount.name
+        rep['avatar_acount'] = instance.avatar_acount.url
 
         return rep
 
