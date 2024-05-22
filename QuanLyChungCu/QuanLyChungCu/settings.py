@@ -20,11 +20,16 @@ AUTH_USER_MODEL = 'QlChungCu.User'
 import cloudinary
 
 cloudinary.config(
-    cloud_name="chungcu",
-    api_key="222688138536979",
-    api_secret="PB88FJe9bAI-Pn23EIHPr2KdcS8"
+    cloud_name = "dqlayg3tt",
+    api_key = "652628625747826",
+    api_secret = "sS6do7hBSf1MTI54OVs6fawc4ro", # Click 'View Credentials' below to copy your API secret
+    api_proxy = "http://proxy.server:3128"
 )
+
+import cloudinary.uploader
+import cloudinary.api
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

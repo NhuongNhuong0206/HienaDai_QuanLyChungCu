@@ -12,6 +12,7 @@ router.register('User', views.ResidentLoginViewset)
 router.register('CarCard', views.CarCardViewset)
 router.register('Bill', views.BillViewSet)
 router.register('Box', views.BoxViewSet)
+router.register('Info', views.InfoViewSet)
 # Tạo 2 enpoint tương ứng với 5 API
 # +/people/ - GET
 # +/people/ - POST

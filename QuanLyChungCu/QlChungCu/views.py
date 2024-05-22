@@ -1,3 +1,6 @@
+import random
+import string
+import yagmail
 from django.db.models import Q
 from rest_framework import viewsets, generics, status, parsers, permissions
 from QlChungCu import serializers, paginators
@@ -6,7 +9,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import User, People, CarCard, Box, Goods, Letters, Bill
 from .serializers import PeopleSerializers, UserSerializers, CarCardSerializers, BoxSerializers, GoodsSerializers, \
-    LettersSerializers, BillSerializers, UpdateResidentSerializer
+    LettersSerializers, BillSerializers, UpdateResidentSerializer, \
+    ForgotPasswordSerializers
 
 
 # # ModelViewSet Kế thừa APIview, APIview kế thừa tiêu chuẩn của django
@@ -36,7 +40,7 @@ class ResidentLoginViewset(viewsets.ViewSet, generics.ListAPIView):  # API Ngư�
         return [permissions.AllowAny()]
 
     # Khi nguời dùng đăng nhập lần đầu tiên thì bắt buộc đổi mk + avt
-    @action(methods=['put'], url_path='home', detail=True)
+    @action(methods=['patch'], url_path='home', detail=True)
     def update_acount(self, request, pk):
         try:
             user = User.objects.get(pk=pk)
@@ -167,6 +171,74 @@ class BoxViewSet(viewsets.ViewSet, generics.ListAPIView):
         box_user = Box.objects.filter(user_resident=current_user.id)
         serialized_data = self.serializer_class(box_user, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
+
+
+#API INFO DÙNG ĐỂ XỮ LÝ QUÊN MẬT KHẨU
+class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
+    queryset = People.objects.filter(is_active=True)
+    serializer_class = ForgotPasswordSerializers
+
+    #API tạo code xử lý quên mật khẩu
+    @action(methods=['post'], url_path='create_passForgot', detail=False)
+    def create_passForgot(self, request):
+        name_people = request.data.get('name_people')
+        identification_card = request.data.get('identification_card')
+
+        try:
+            person = People.objects.get(identification_card=identification_card, name_people=name_people)
+        except People.DoesNotExist:
+            return Response({"message": "Không tìm thấy người dùng"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # Tạo mã code ngẫu nhiên
+        code = ''.join(random.choices(string.digits, k=6))
+
+        # Xử lý gửi mail
+        yag = yagmail.SMTP("phanloan2711@gmail.com", 'mpgnbisxmfgwpdbg')
+        to = person.user.email
+        subject = 'CHUNG CƯ HIỀN VY: Mã xác thực đổi mật khẩu'
+        body = f'Mã xác thực của bạn là: {code}'
+        yag.send(to=to, subject=subject, contents=body)
+
+        # Lưu mã code vào session của người dùng
+        request.session['verification_code'] = code
+        request.session['user_id'] = person.user.id
+        request.session.modified = True  # Đảm bảo session được cập nhật
+
+        return Response({"message": "Mã xác thực đã được gửi qua email", "code":  code}, status=status.HTTP_200_OK)
+
+
+    @action(methods=['post'], url_path='reset_password', detail=False)
+    def reset_password(self, request):
+        code = request.data.get('code')
+        new_password = request.data.get('password')
+        print(new_password)
+
+        # Lấy mã code đã lưu trong session của người dùng
+        session_code = request.session.get('verification_code')
+        user_id = request.session.get('user_id')
+
+        if not session_code or not user_id:
+            return Response({"message": "Session không hợp lệ hoặc đã hết hạn"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if code != session_code:
+            return Response({"message": "Mã xác thực không hợp lệ"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"message": "Không tìm thấy người dùng"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Đặt mật khẩu mới cho người dùng
+        user.set_password(new_password)
+        user.change_password_required = True
+        user.save()
+
+        # Xóa mã code khỏi session sau khi đã sử dụng
+        del request.session['verification_code']
+        del request.session['user_id']
+
+        return Response({"message": "Mật khẩu đã được đặt lại thành công"}, status=status.HTTP_200_OK)
 
 
 

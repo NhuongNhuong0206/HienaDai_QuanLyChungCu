@@ -13,7 +13,7 @@ class UserResidentSet(admin.ModelAdmin):
     list_display = ['id', 'username', 'change_password_required', 'avatar_acount', 'edit']
     search_fields = ['username']
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'user_role')}),
+        (None, {'fields': ('username', 'password', 'user_role', 'email')}),
         ('Permission', {'fields': ('is_staff', 'is_active', 'is_superuser', 'user_permissions')}),
         ('Personal info', {'fields': ('change_password_required', 'avatar_acount')}),
     )
