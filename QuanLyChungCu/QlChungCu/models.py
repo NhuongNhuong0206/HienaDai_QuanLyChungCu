@@ -124,4 +124,4 @@ class Bill(BaseModel):
     user_resident = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.money
+        return self.name_bill

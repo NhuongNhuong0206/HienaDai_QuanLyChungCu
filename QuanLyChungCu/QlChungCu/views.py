@@ -12,6 +12,16 @@ from .serializers import PeopleSerializers, UserSerializers, CarCardSerializers,
     LettersSerializers, BillSerializers, UpdateResidentSerializer, \
     ForgotPasswordSerializers
 
+from django.views.decorators.csrf import csrf_exempt
+import json
+import urllib.request
+import urllib
+import uuid
+import requests
+import hmac
+import hashlib
+from django.http import HttpResponse, JsonResponse
+
 
 # # ModelViewSet Kế thừa APIview, APIview kế thừa tiêu chuẩn của django
 # # ModelViewSet implament 1 số thứ sẵn từ model
@@ -101,16 +111,20 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
         serialized_data = self.serializer_class(carcard_user, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
 
-    @action(methods=['post'], url_path='update_card',
-            detail=False)  # Người dùng đăng ký thẻ xe cho mình hoặc người thân
+    @action(methods=['post'], url_path='update_card', detail=False)
     def create_carcard(self, request):
         current_user = request.user
+
+        # Kiểm tra số lượng thẻ xe của người dùng
+        num_carcards = CarCard.objects.filter(user=current_user).count()
+        if num_carcards >= 3:
+            return Response({"error": "Bạn đã đạt tối đa số lượng thẻ xe."}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             serializer.save(user=current_user,
-                            status_card=CarCard.EnumStatusCard.WAIT)  # Tạo 1 thẻ xe gán vào user đang đăng nhập
+                            status_card=CarCard.EnumStatusCard.WAIT, is_active=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -150,7 +164,7 @@ class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
             bills = bills.filter(id=bill_id)
         if bill_name:
             # Sử dụng Q object để tìm kiếm theo tên bill
-            bills = bills.filter(Q(name_bill__icontains=bill_name))# icontains : Tìm kiếm không phân biệt hoa thường
+            bills = bills.filter(Q(name_bill__icontains=bill_name))  # icontains : Tìm kiếm không phân biệt hoa thường
 
         serialized_data = self.serializer_class(bills, many=True).data
 
@@ -173,12 +187,12 @@ class BoxViewSet(viewsets.ViewSet, generics.ListAPIView):
         return Response(serialized_data, status=status.HTTP_200_OK)
 
 
-#API INFO DÙNG ĐỂ XỮ LÝ QUÊN MẬT KHẨU
+# API INFO DÙNG ĐỂ XỮ LÝ QUÊN MẬT KHẨU
 class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = People.objects.filter(is_active=True)
     serializer_class = ForgotPasswordSerializers
 
-    #API tạo code xử lý quên mật khẩu
+    # API tạo code xử lý quên mật khẩu
     @action(methods=['post'], url_path='create_passForgot', detail=False)
     def create_passForgot(self, request):
         name_people = request.data.get('name_people')
@@ -205,8 +219,7 @@ class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
         request.session['user_id'] = person.user.id
         request.session.modified = True  # Đảm bảo session được cập nhật
 
-        return Response({"message": "Mã xác thực đã được gửi qua email", "code":  code}, status=status.HTTP_200_OK)
-
+        return Response({"message": "Mã xác thực đã được gửi qua email", "code": code}, status=status.HTTP_200_OK)
 
     @action(methods=['post'], url_path='reset_password', detail=False)
     def reset_password(self, request):
@@ -230,7 +243,8 @@ class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
             return Response({"message": "Không tìm thấy người dùng"}, status=status.HTTP_404_NOT_FOUND)
 
         # Đặt mật khẩu mới cho người dùng
-        user.set_password(new_password)
+        user.password = new_password
+        # user.set_password(new_password)
         user.change_password_required = True
         user.save()
 
@@ -241,124 +255,103 @@ class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
         return Response({"message": "Mật khẩu đã được đặt lại thành công"}, status=status.HTTP_200_OK)
 
 
+# API MOMO
+class MomoViewSet(viewsets.ViewSet):
+    serializer_class = BillSerializers
+
+    @action(detail=False, methods=['post'], url_path='momoipn')
+    @csrf_exempt
+    def momo_ipn(self, request):
+        try:
+            payment_data = request.data
+            result_code = payment_data.get("resultCode")
+            orderInfo = payment_data.get('orderInfo')# Trường orderInfo chứa id của cái Bill.
+            print(orderInfo)
+            amount = payment_data.get('amount')
+            print(amount)
+
+            if result_code != 0:
+                return JsonResponse({'error': "Thanh toán thất bại", 'status': 400})
+
+            # Tìm tất cả các Bill thỏa mãn điều kiện id=orderInfo, money=amount
+            bills = Bill.objects.filter(id=orderInfo, money=amount)
+
+            # Kiểm tra nếu không có Bill thỏa mãn điều kiện, trả về lỗi
+            if not bills.exists():
+                return Response({"error": "Không tìm thấy hóa đơn tương ứng", 'status': status.HTTP_404_NOT_FOUND})
+
+            # Thay đổi trạng thái của tất cả các Bill thỏa mãn điều kiện thành "paid"
+            print('Tới update')
+            bills.update(status_bill=Bill.EnumStatusBill.PAID)
+
+            return Response({"message": "Thành công"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'status': status.HTTP_500_INTERNAL_SERVER_ERROR, 'error': str(e)})
+
+
+    @action(detail=False, methods=['post'], url_path='create', url_name='momo_create')
+    @csrf_exempt
+    def create_momo_payment(self, request):
+
+        endpoint = "https://test-payment.momo.vn/v2/gateway/api/create"
+        ipnUrl = "https://7dce-171-243-48-141.ngrok-free.app/momo/momoipn/"
+
+        accessKey = "F8BBA842ECF85"
+        secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+        partnerCode = "MOMO"
+        orderInfo = self.request.data.get('id')
+        requestId = str(uuid.uuid4())
+        amount = self.request.data.get('total')
+        orderId = str(uuid.uuid4())
+        # orderId = total.get('appointment_id')+total.get('user_id')+total.get('booking_date')
+
+        requestType = "captureWallet"
+        extraData = ""
+        redirectUrl = ""
+
+        rawSignature = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl \
+                       + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode \
+                       + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType
+
+        h = hmac.new(bytes(secretKey, 'ascii'), bytes(rawSignature, 'ascii'), hashlib.sha256)
+        signature = h.hexdigest()
+        data = {
+            'partnerCode': partnerCode,
+            'partnerName': "Test",
+            'storeId': "MomoTestStore",
+            'requestId': requestId,
+            'amount': amount,
+            'orderId': orderId,
+            'orderInfo': orderInfo,
+            'redirectUrl': redirectUrl,
+            'ipnUrl': ipnUrl,
+            'lang': "vi",
+            'extraData': extraData,
+            'requestType': requestType,
+            'signature': signature,
+            'orderExpireTime': 10,
+        }
+
+        data = json.dumps(data)
+
+        clen = len(data)
+        response = requests.post(endpoint,
+                                 data=data,
+                                 headers={'Content-Type': 'application/json', 'Content-Length': str(clen)})
+
+        if response.status_code == 200:
+            response_data = response.json()
+            return JsonResponse({**response_data})
+        else:
+            return JsonResponse({'error': 'Invalid request method'})
 
 
 
-# class UserResidentViewset(viewsets.ViewSet, generics.ListAPIView):
-#     queryset = User.objects.filter(is_active=True, user_role ='Resident')  # Lấy các tài khoản cư dân đang active
-#     serializer_class = UserSerializers
-#     # Tạo 5 API:
-#     # List (GET) --> Xem danh sách Tài khoản cư dan
-#     # ... (POST) --> Thêm cư dân
-#     # detail --> Xem chi tiết thông tin Tài khoản cư dân
-#     # ... --> Cập nhập
-#     # ... (DELETE) --> Xoá Tài khoản cư dân
-#
-#
-#     # def get_permissions(self):
-#     #     if self.action in ['get_acount']:
-#     #         return [permissions.IsAuthenticated()]
-#     #
-#     #     return [permissions.AllowAny()]
-#
-#     #Lấy danh sach cac tai khoang cu dan ma admin do dang quan lý  /acoutAdmin/{id}/acount_get/
-#     @action(methods=['get'], url_path='get_user', detail=True)
-#     def get_acount(self, request, pk):
-#         acount_user = User.objects.filter(is_active=True, user_role ='Resident')
-#
-#         return Response(serializers.UserSerializers(acount_user, many=True).data, status=status.HTTP_200_OK)
-# #
-# #
-# #     #Tạo một tài khoảng mới cho cư dân  /acoutAdmin/{id}/acount_create/
-#     @action(methods=['post'], url_path='create_user', detail=True)
-#     def create_acount(self, request, pk):
-#         serializer = UserSerializers(data=request.data)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+class ZaloViewSet(viewsets.ViewSet):
+    @csrf_exempt
+    @action(detail=False, methods=['post'], url_path='create', url_name='create_zalo')
+    def create_zalo_payment(self, request):
+        pass
 
-#         # Lấy thông tin người dùng đăng nhập từ request.user
-#         if request.user.is_authenticated:  # Kiểm tra xem người dùng đã đăng nhập chưa
-#             admin = request.user  # Lấy thông tin admin đăng nhập
-#
-#             # Tạo tài khoản khách hàng với area_admin là area_admin của admin đăng nhập
-#             serializer = AcountSerializers(data=request.data)
-#             if serializer.is_valid():
-#                 serializer.save(area_admin=admin.area_admin, admin=admin)  # Gán giá trị cho area_admin và admin
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         else:
-#             return Response("User is not authenticated", status=status.HTTP_401_UNAUTHORIZED)
-#
-#
-#
-# class PeopleViewset(viewsets.ModelViewSet):
-#     queryset = People.objects.filter(is_active=True)
-#     serializer_class = PeopleSerializers
-#     pagination_class = paginators.PeoplePaginator
-#
-#
 
-#
-#
-# class AcountViewset(viewsets.ViewSet, generics.ListAPIView):
-#     queryset = Acount.objects.filter(is_active=True)
-#     serializer_class = AcountSerializers
-#
-#     #Khi nguời dùng đăng nhập lần đầu tiên thì bắt buộc đổi mk + avt
-#     @action(methods=['put'], url_path='home', detail=True)
-#     def update_acount(self, request, pk):
-#         try:
-#             acount = Acount.objects.get(pk=pk)
-#         except Acount.DoesNotExist:
-#             return Response({"message": "Acount not found"}, status=status.HTTP_404_NOT_FOUND)
-#
-#         if acount.update_acount:
-#             # Nếu update_acount là True, chỉ xuất ra dữ liệu của tài khoản
-#             serializer = AcountSerializers(acount)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#
-#         # Nếu update_acount là False, cho phép người dùng cập nhật pass_acount và avata_acount
-#         serializer = UpdateAcountSerializer(acount, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             serializer.save(update_acount=True)  # Đặt update_acount thành True sau khi cập nhật
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-#
-#
-#
-#     def get_queryset(self):
-#         queryset = self.queryset
-#
-#         q = self.request.query_params.get('q')
-#         if q:
-#             queryset = queryset.filter(name_acount__icontains=q)
-#
-#         ad_id = self.request.query_params.get('admin_id')
-#
-#         if ad_id:
-#             queryset = queryset.filter(admin_id=ad_id)
-#         return queryset
-#
-#
-# class BoxViewset(viewsets.ModelViewSet):
-#     queryset = Box.objects.filter(is_active=True)
-#     serializer_class = BoxSerializers
-#
-#
-# class GoodsViewset(viewsets.ModelViewSet):
-#     queryset = Goods.objects.filter(is_active=True)
-#     serializer_class = GoodsSerializers
-#
-#
-# class LettersViewset(viewsets.ModelViewSet):
-#     queryset = Letters.objects.filter(is_active=True)
-#     serializer_class = LettersSerializers
-#
-#
-# class BillViewset(viewsets.ModelViewSet):
-#     queryset = Bill.objects.filter(is_active=True)
-#     serializer_class = BillSerializers
-#
-#
-#
+
