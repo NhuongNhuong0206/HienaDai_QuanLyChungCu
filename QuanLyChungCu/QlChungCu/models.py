@@ -120,7 +120,9 @@ class Bill(BaseModel):
                                  default=EnumTypeBill.OTHER)
     status_bill = models.CharField(max_length=50, choices=EnumStatusBill.choices,
                                    default=EnumStatusBill.UNPAID)
-
+    trading_code = models.CharField(max_length=255, null=True)# Mã giao dịch
+    transaction_images = CloudinaryField(null=True, blank=True)
+    payment_style = models.CharField(max_length=255, null=True, default='Null')
     user_resident = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):

@@ -11,7 +11,7 @@ from .models import User, People, CarCard, Box, Goods, Letters, Bill
 from .serializers import PeopleSerializers, UserSerializers, CarCardSerializers, BoxSerializers, GoodsSerializers, \
     LettersSerializers, BillSerializers, UpdateResidentSerializer, \
     ForgotPasswordSerializers
-
+from datetime import datetime, timedelta, timezone, time
 from django.views.decorators.csrf import csrf_exempt
 import json
 import urllib.request
@@ -91,13 +91,13 @@ class ResidentLoginViewset(viewsets.ViewSet, generics.ListAPIView):  # API Ngư�
     #     return queryset
 
 
-# APTI THẺ GIỮ XE
+# API THẺ GIỮ XE
 class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
     queryset = CarCard.objects.filter(is_active=True)
     serializer_class = CarCardSerializers
 
     def get_permissions(self):
-        if self.action in ['create_carcard', ]:
+        if self.action in ['create_carcard', 'delete_card']:
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
@@ -118,15 +118,30 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
         # Kiểm tra số lượng thẻ xe của người dùng
         num_carcards = CarCard.objects.filter(user=current_user).count()
         if num_carcards >= 3:
-            return Response({"error": "Bạn đã đạt tối đa số lượng thẻ xe."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Bạn đã đạt tối đa số lượng thẻ xe."},
+                            status=status.HTTP_403_FORBIDDEN)  # từ chối
 
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             serializer.save(user=current_user,
-                            status_card=CarCard.EnumStatusCard.WAIT, is_active=True)
+                            status_card=CarCard.EnumStatusCard.CONFIRMER, is_active=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # API Xóa thẻ xe
+    @action(methods=['delete'], url_path='delete_card', detail=False)
+    def delete_carcard(self, request):
+        current_user = request.user
+        carcard_id = request.data.get('id')
+        try:
+            carcard = CarCard.objects.get(user=current_user, id=carcard_id)
+        except CarCard.DoesNotExist:
+            return Response({"error": "Không tìm thấy thẻ xe hoặc thẻ xe không thuộc về người dùng hiện tại!"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        carcard.delete()
+        return Response({"message": "Thẻ xe đã được xóa thành công."}, status=status.HTTP_200_OK)
 
 
 # API HÓA ĐƠN
@@ -259,14 +274,17 @@ class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
 class MomoViewSet(viewsets.ViewSet):
     serializer_class = BillSerializers
 
+    # Hứng Data từ momo gửi về
     @action(detail=False, methods=['post'], url_path='momoipn')
     @csrf_exempt
     def momo_ipn(self, request):
         try:
             payment_data = request.data
+            print(payment_data)
             result_code = payment_data.get("resultCode")
-            orderInfo = payment_data.get('orderInfo')# Trường orderInfo chứa id của cái Bill.
+            orderInfo = payment_data.get('orderInfo')  # Trường orderInfo chứa id của cái Bill.
             print(orderInfo)
+            orderId = payment_data.get('orderId')
             amount = payment_data.get('amount')
             print(amount)
 
@@ -282,19 +300,18 @@ class MomoViewSet(viewsets.ViewSet):
 
             # Thay đổi trạng thái của tất cả các Bill thỏa mãn điều kiện thành "paid"
             print('Tới update')
-            bills.update(status_bill=Bill.EnumStatusBill.PAID)
+            bills.update(status_bill=Bill.EnumStatusBill.PAID, trading_code=orderId, payment_style='Momo')
 
             return Response({"message": "Thành công"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'status': status.HTTP_500_INTERNAL_SERVER_ERROR, 'error': str(e)})
-
 
     @action(detail=False, methods=['post'], url_path='create', url_name='momo_create')
     @csrf_exempt
     def create_momo_payment(self, request):
 
         endpoint = "https://test-payment.momo.vn/v2/gateway/api/create"
-        ipnUrl = "https://7dce-171-243-48-141.ngrok-free.app/momo/momoipn/"
+        ipnUrl = "https://7a7f-171-243-48-141.ngrok-free.app/momo/momoipn/"
 
         accessKey = "F8BBA842ECF85"
         secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
@@ -346,12 +363,108 @@ class MomoViewSet(viewsets.ViewSet):
             return JsonResponse({'error': 'Invalid request method'})
 
 
-
+# API ZALO
 class ZaloViewSet(viewsets.ViewSet):
+    serializer_class = BillSerializers
+
     @csrf_exempt
     @action(detail=False, methods=['post'], url_path='create', url_name='create_zalo')
-    def create_zalo_payment(self, request):
-        pass
+    def create_zalo_payment(self, request):  # tạo đường link thanh toán
+        endpoint = "https://sb-openapi.zalopay.vn/v2/create"
+        app_id = 2553
+        key1 = "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL"
+        key2 = "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz"
 
+        appuser = self.request.data.get('id')
+        transID = random.randrange(1000000)
+        apptime = int(round(datetime.now().timestamp() * 1000))  # milliseconds
+        app_trans_id = "{:%y%m%d}_{}".format(datetime.today(), transID)
+        print("t", app_trans_id)
+        embed_data = json.dumps({})
+        item = json.dumps([{}])
+        amount = self.request.data.get('amount')
+        callback_url = 'https://7a7f-171-243-48-141.ngrok-free.app/zalo/query_zalopay/'
 
+        # Tạo chuỗi dữ liệu theo định dạng yêu cầu
+        raw_data = "{}|{}|{}|{}|{}|{}|{}".format(app_id, app_trans_id, appuser, amount, apptime, embed_data, item)
 
+        # Tính toán MAC bằng cách sử dụng HMAC
+        mac = hmac.new(key1.encode(), raw_data.encode(), hashlib.sha256).hexdigest()
+        print("mac trong API Gửi" + mac)
+
+        # Dữ liệu gửi đi
+        data = {
+            "app_id": app_id,
+            "app_user": appuser,
+            "app_time": apptime,
+            "amount": amount,
+            "app_trans_id": app_trans_id,
+            "embed_data": embed_data,
+            "item": item,
+            "description": "Lazada - Payment for the order #" + str(transID),
+            "bank_code": "zalopayapp",
+            "mac": mac,
+            "callback_url": callback_url
+        }
+
+        # Gửi yêu cầu tạo
+        response = requests.post(url=endpoint, data=data)
+
+        if response.status_code == 200:
+            response_data = response.json()
+            print(response_data)
+            return JsonResponse(
+                {'ok': '200', 'app_trans_id': app_trans_id, 'order_url': response_data.get('order_url')})
+        else:
+            return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+    # API hứng dữ liệu ZaLopay gửi về
+    @csrf_exempt
+    @action(detail=False, methods=['post'], url_path='query_zalopay', url_name='query_zalo')
+    def query_zalo_payment(self, request):  # kiểm tra trạng thái thanh toán?
+        result = {}
+        key2 = 'kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz'
+        try:
+            cbdata = request.data
+            mac = hmac.new(key2.encode(), cbdata['data'].encode(), hashlib.sha256).hexdigest()
+            print("cbdata['mac'] " + cbdata['mac'])
+            print(mac)
+            # kiểm tra callback hợp lệ (đến từ ZaloPay server)
+            if mac != cbdata['mac']:
+                # callback không hợp lệ
+                result['return_code'] = -1
+                result['return_message'] = 'mac not equal'
+            else:
+                # Thanh toán thành công
+                # Merchant cập nhật trạng thái cho đơn hàng
+                dataJson = json.loads(cbdata['data'])
+                print(f'datajson: {dataJson}')
+
+                result['return_code'] = 1
+                result['return_message'] = 'success'
+
+                app_user = dataJson.get('app_user')  # Trường orderInfo chứa id của cái Bill.
+                print(app_user)
+                amount = dataJson.get('amount')
+                print(amount)
+                zp_trans_id = dataJson.get('zp_trans_id')
+                print("thành công")
+                # Tìm tất cả các Bill thỏa mãn điều kiện id=orderInfo, money=amount
+                bills = Bill.objects.filter(id=app_user, money=amount)
+                print("Bill : " + str(bills))  # Chuyển đổi bills thành chuỗi trước khi nối
+
+                # Kiểm tra nếu không có Bill thỏa mãn điều kiện, trả về lỗi
+                if not bills.exists():
+                    return Response({"error": "Không tìm thấy hóa đơn tương ứng", 'status': status.HTTP_404_NOT_FOUND})
+
+                # Thay đổi trạng thái của tất cả các Bill thỏa mãn điều kiện thành "paid"
+                print('Tới update')
+                bills.update(status_bill=Bill.EnumStatusBill.PAID, trading_code = zp_trans_id, payment_style='ZaloPay')
+
+        except Exception as e:
+            result['return_code'] = 0  # ZaloPay server sẽ callback lại (tối đa 3 lần)
+            result['return_message'] = str(e)
+
+        # Thông báo kết quả cho ZaloPay server
+        print(result)
+        return JsonResponse(result)

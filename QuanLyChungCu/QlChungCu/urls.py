@@ -12,6 +12,8 @@ router.register('Bill', views.BillViewSet)
 router.register('Box', views.BoxViewSet)
 router.register('Info', views.InfoViewSet)
 router.register('momo', views.MomoViewSet, basename='momo')
+router.register('zalo', views.ZaloViewSet, basename='zalo')
+
 # Tạo 2 enpoint tương ứng với 5 API
 # +/people/ - GET
 # +/people/ - POST
