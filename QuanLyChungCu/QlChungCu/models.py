@@ -56,10 +56,18 @@ class Box(BaseModel):
 
 
 class Goods(BaseModel):
+    class EnumStatusGood(models.TextChoices):
+        WTR = 'Waiting_to_receive'
+        RECEIVED = 'Received'
+        URG = 'User_receives_goods'
+
     name_goods = models.CharField(max_length=255)
-    img_goods = CloudinaryField()
-    received_Goods = models.BooleanField(default=False)
+    img_goods = CloudinaryField(null=True)
+    received_Goods = models.CharField(max_length=50, choices=EnumStatusGood.choices,
+                                  default=EnumStatusGood.WTR)  # trạng thái hàng hóa
+    note = models.CharField(max_length=255, default='no notes')
     box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
+
 
 
 class People(BaseModel):

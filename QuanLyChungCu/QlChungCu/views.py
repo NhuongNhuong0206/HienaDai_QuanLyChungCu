@@ -210,15 +210,39 @@ class GoodsViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = Goods.objects.filter(is_active=True)
     serializer_class = GoodsSerializers
 
+    def get_permissions(self):
+        if self.action in ['get_goods', 'create_goods']:
+            return [permissions.IsAuthenticated()]
+
+        return [permissions.AllowAny()]
+
     @action(methods=['get'], url_path='get_goods', detail=False)
     def get_goods(self, request):
         try:
-            box_id = request.data.get('id')  # Sử dụng query_params thay vì data
-            goods_data = Goods.objects.filter(box=box_id)
-            serialized_data = GoodsSerializers(goods_data, many=True).data
+            user = request.user  # Người dùng hiện tại đăng nhập
+            boxes = Box.objects.filter(user_admin=user)  # Lấy Tất cả các box mà người dùng là admin
+            goods = Goods.objects.filter(box__in=boxes)  # lọc các đối tượng mà trường đó có giá trị trong một danh sách đã cho
+
+            serialized_data = GoodsSerializers(goods, many=True).data
             return Response(serialized_data, status=status.HTTP_200_OK)
-        except Goods.DoesNotExist:
-            return Response({"message": "Không tìm thấy thông tin hàng hóa"}, status=status.HTTP_404_NOT_FOUND)
+        except:
+            return Response({"message": "Không thể lấy thông tin hàng hóa"}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], url_path='create_goods', detail=False)
+    def create_goods(self, request):
+        serializer_data = request.data.copy()  # Tạo một bản sao của dữ liệu request để thêm trường box
+        user = request.user  # Người dùng hiện tại đăng nhập
+        boxes = Box.objects.filter(user_admin=user)  # Tất cả các box mà người dùng là admin
+        if boxes.exists():  # Kiểm tra xem người dùng có box nào không
+            serializer_data['box'] = boxes.first().id  # Lưu id của box đầu tiên vào trường box
+        else:
+            return Response({"message": "Người dùng không có box"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = GoodsSerializers(data=serializer_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API INFO NGUOI DUNG

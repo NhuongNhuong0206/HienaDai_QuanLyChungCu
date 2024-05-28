@@ -99,15 +99,19 @@ class BoxSet(admin.ModelAdmin):
 
 
 class GoodSet(admin.ModelAdmin):
-    list_display = ['id', 'name_goods', 'received_Goods', 'box', 'edit', ]
+    list_display = ['id', 'name_goods', 'received_Goods', 'box', 'note', 'username', 'edit']
     search_fields = ['id', 'name_goods']
+
+    def username(self, obj):
+        if obj.box and obj.box.user_admin:
+            return obj.box.user_admin.username
+        return ""
 
     def edit(self, obj):
         edit_url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
         return format_html(
             '<a href="{}" style="background-color: #4CAF50; border: none; color: white; padding: 8px 14px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 4px; cursor: pointer;">Edit</a>',
             edit_url)
-
 
 class BillSet(admin.ModelAdmin):
     list_display = ['id', 'name_bill', 'money', 'decription', 'type_bill', 'status_bill', 'user_resident', 'edit']
