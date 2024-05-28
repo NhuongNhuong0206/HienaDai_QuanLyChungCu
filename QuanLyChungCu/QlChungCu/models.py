@@ -67,6 +67,7 @@ class Goods(BaseModel):
                                   default=EnumStatusGood.WTR)  # trạng thái hàng hóa
     note = models.CharField(max_length=255, default='no notes')
     box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
+    size = models.CharField(max_length=255, null=True)
 
 
 

@@ -235,8 +235,10 @@ class GoodsViewSet(viewsets.ViewSet, generics.ListAPIView):
         boxes = Box.objects.filter(user_admin=user)  # Tất cả các box mà người dùng là admin
         if boxes.exists():  # Kiểm tra xem người dùng có box nào không
             serializer_data['box'] = boxes.first().id  # Lưu id của box đầu tiên vào trường box
+            serializer_data['is_active'] = True
         else:
             return Response({"message": "Người dùng không có box"}, status=status.HTTP_400_BAD_REQUEST)
+
 
         serializer = GoodsSerializers(data=serializer_data)
         if serializer.is_valid():
