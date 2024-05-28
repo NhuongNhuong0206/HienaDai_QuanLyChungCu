@@ -58,7 +58,7 @@ class UserResidentSet(admin.ModelAdmin):
 
 
 class CarCardSet(admin.ModelAdmin):
-    list_display = ['id', 'area', 'status_card', 'vehicle_type', 'user', 'people', 'edit', ]
+    list_display = ['id', 'area', 'status_card', 'vehicle_type', 'user', 'edit', ]
     search_fields = ['id', 'area']
 
     def edit(self, obj):
@@ -68,13 +68,9 @@ class CarCardSet(admin.ModelAdmin):
             edit_url)
 
 
-class CarCardInlineAdmin(admin.StackedInline):
-    model = CarCard
-    fk_name = 'people'
 
 
 class PeopleSet(admin.ModelAdmin):
-    inlines = [CarCardInlineAdmin, ]
     list_display = ['id', 'name_people', 'sex', 'phone', 'birthday', 'ApartNum', 'edit']
     search_fields = ['id', 'name_people']
 

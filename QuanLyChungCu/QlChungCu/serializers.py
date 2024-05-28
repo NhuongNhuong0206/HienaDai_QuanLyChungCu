@@ -9,11 +9,6 @@ import string
 import smtplib
 from email.mime.text import MIMEText
 
-class PeopleSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = People
-        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = '__all__'
 
 
 class CarCardSerializers(serializers.ModelSerializer):
@@ -93,36 +88,10 @@ class ForgotPasswordSerializers(serializers.ModelSerializer):
         model = People
         fields = ['name_people', 'email','identification_card']
 
-    # def to_representation(self, instance):
-    #     email_user = self.fields['email'].get_attribute(instance)  # Lấy giá trị của trường email từ đối tượng instance
-    #     representation = super().to_representation(instance)
-    #     code_value = ''.join(random.choices(string.digits, k=6))  # Tạo chuỗi số ngẫu nhiên gồm 6 ký tự
-    #     representation['code'] = code_value  # Lưu dữ liệu trường code vào biến tạm
-    #     #Xữ lý gửi mail
-    #     import yagmail
-    #     yag = yagmail.SMTP("phanloan2711@gmail.com", 'mpgnbisxmfgwpdbg')
-    #     to = email_user
-    #     subject = 'CHUNG CƯ HIỀN VY: Mã xác thực đổi mật khẩu'
-    #     body = f'Mã xác thực của bạn là: {code_value}'
-    #     yag.send(to=to, subject=subject, contents=body)
-    #     return representation
 
+class PeopleSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = People
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = ['name_people', 'birthday', 'sex', 'phone', 'expiry', 'expiry', 'ApartNum', 'identification_card',]
 
-
-
-# class CodeForgotPasswordSer(serializers.ModelSerializer):
-#     fields = ['code']
-#     def to_representation(self, instance):
-#         email_user = self.fields['email'].get_attribute(instance)  # Lấy giá trị của trường email từ đối tượng instance
-#         representation = super().to_representation(instance)
-#         code_value = ''.join(random.choices(string.digits, k=6))  # Tạo chuỗi số ngẫu nhiên gồm 6 ký tự
-#         representation['code'] = code_value  # Lưu dữ liệu trường code vào biến tạm
-#         #Xữ lý gửi mail
-#         import yagmail
-#         yag = yagmail.SMTP("phanloan2711@gmail.com", 'mpgnbisxmfgwpdbg')
-#         to = email_user
-#         subject = 'CHUNG CƯ HIỀN VY: Mã xác thực đổi mật khẩu'
-#         body = f'Mã xác thực của bạn là: {code_value}'
-#         yag.send(to=to, subject=subject, contents=body)
-#         return representation
-#

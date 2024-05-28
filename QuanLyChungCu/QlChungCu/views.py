@@ -102,6 +102,7 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
 
         return [permissions.AllowAny()]
 
+
     @action(methods=['get'], url_path='get_card', detail=True)  # Người dùng xem thông tin thẻ xe của mình
     def get_carcard(self, request, pk):
         # Lấy người dùng đang đăng nhập từ request
@@ -130,10 +131,12 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # API Xóa thẻ xe
+
     @action(methods=['delete'], url_path='delete_card', detail=False)
-    def delete_carcard(self, request):
+    def delete(self, request):
         current_user = request.user
-        carcard_id = request.data.get('id')
+        carcard_data = request.data
+        carcard_id = carcard_data.get('id')
         try:
             carcard = CarCard.objects.get(user=current_user, id=carcard_id)
         except CarCard.DoesNotExist:
@@ -143,8 +146,7 @@ class CarCardViewset(viewsets.ViewSet, generics.ListAPIView):
         carcard.delete()
         return Response({"message": "Thẻ xe đã được xóa thành công."}, status=status.HTTP_200_OK)
 
-
-# API HÓA ĐƠN
+# # API HÓA ĐƠN
 class BillViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     def get_permissions(self):
@@ -193,16 +195,33 @@ class BoxViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = Box.objects.filter(is_active=True)
     serializer_class = BoxSerializers
 
+    @action(methods=['get'], url_path='get_box', detail=False)
     def get_box(self, request):
         # Lấy người dùng đang đăng nhập từ request
         current_user = request.user
         # Lấy thông tin các Hóa đơn mà người dùng đang có
-        box_user = Box.objects.filter(user_resident=current_user.id)
+        box_user = Box.objects.filter(user_admin=current_user.id)
         serialized_data = self.serializer_class(box_user, many=True).data
         return Response(serialized_data, status=status.HTTP_200_OK)
 
 
-# API INFO DÙNG ĐỂ XỮ LÝ QUÊN MẬT KHẨU
+
+class GoodsViewSet(viewsets.ViewSet, generics.ListAPIView):
+    queryset = Goods.objects.filter(is_active=True)
+    serializer_class = GoodsSerializers
+
+    @action(methods=['get'], url_path='get_goods', detail=False)
+    def get_goods(self, request):
+        try:
+            box_id = request.data.get('id')  # Sử dụng query_params thay vì data
+            goods_data = Goods.objects.filter(box=box_id)
+            serialized_data = GoodsSerializers(goods_data, many=True).data
+            return Response(serialized_data, status=status.HTTP_200_OK)
+        except Goods.DoesNotExist:
+            return Response({"message": "Không tìm thấy thông tin hàng hóa"}, status=status.HTTP_404_NOT_FOUND)
+
+
+# API INFO NGUOI DUNG
 class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = People.objects.filter(is_active=True)
     serializer_class = ForgotPasswordSerializers
@@ -236,6 +255,7 @@ class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         return Response({"message": "Mã xác thực đã được gửi qua email", "code": code}, status=status.HTTP_200_OK)
 
+    #API gui mat khau moi
     @action(methods=['post'], url_path='reset_password', detail=False)
     def reset_password(self, request):
         code = request.data.get('code')
@@ -268,6 +288,26 @@ class InfoViewSet(viewsets.ViewSet, generics.ListAPIView):
         del request.session['user_id']
 
         return Response({"message": "Mật khẩu đã được đặt lại thành công"}, status=status.HTTP_200_OK)
+
+
+
+
+class InfoPeopleViewSet(viewsets.ViewSet, generics.ListAPIView):
+    queryset = People.objects.filter(is_active=True)
+    serializer_class = PeopleSerializers
+
+    @action(methods=['get'], url_path='get_infopeople', detail=False)
+    def get_infopeople(self, request):
+        # Lấy người dùng đăng nhập hiện tại
+        user = request.user
+        try:
+            # Tìm thông tin People tương ứng với người dùng
+            people_data = People.objects.get(user=user)
+        except People.DoesNotExist:
+            return Response({"message": "Không tìm thấy thông tin người dùng"}, status=status.HTTP_404_NOT_FOUND)
+
+        serialized_data = self.serializer_class(people_data).data
+        return Response(serialized_data, status=status.HTTP_200_OK)
 
 
 # API MOMO

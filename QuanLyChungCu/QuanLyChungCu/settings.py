@@ -20,10 +20,10 @@ AUTH_USER_MODEL = 'QlChungCu.User'
 import cloudinary
 
 cloudinary.config(
-    cloud_name = "dqlayg3tt",
-    api_key = "652628625747826",
-    api_secret = "sS6do7hBSf1MTI54OVs6fawc4ro", # Click 'View Credentials' below to copy your API secret
-    api_proxy = "http://proxy.server:3128"
+    cloud_name = "hiendai",
+    api_key = "358894412554338",
+    api_secret = "achoo--NvftyIBf-7AUzdDgLMZc", # Click 'View Credentials' below to copy your API secret
+    # api_proxy = "http://proxy.server:3128"
 )
 
 import cloudinary.uploader
@@ -45,9 +45,9 @@ SECRET_KEY = 'django-insecure-e00(c)y-8jz=z--*5^wgx+j%_85jro1+g(3!$abw*il3wrmx@d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['7a7f-171-243-48-141.ngrok-free.app']
-# ALLOWED_HOSTS = []
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'https://7a7f-171-243-48-141.ngrok-free.app']
+# ALLOWED_HOSTS = ['6f4c-171-243-48-141.ngrok-free.app']
+ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'https://6f4c-171-243-48-141.ngrok-free.app']
 # Application definition
 
 INSTALLED_APPS = [
@@ -62,10 +62,12 @@ INSTALLED_APPS = [
     'drf_yasg',
     'oauth2_provider',
     'ckeditor',
-    'ckeditor_uploader'
+    'ckeditor_uploader',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,7 +77,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 ROOT_URLCONF = 'QuanLyChungCu.urls'
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',  # Địa chỉ IP hoặc tên miền của ứng dụng React Native
+    'http://192.168.1.222:8081:delete',
+    'exp://192.168.1.222:8081:delete'# Ví dụ: địa chỉ IP của Metro bundler
+    # Thêm các địa chỉ IP hoặc tên miền khác nếu cần
+)
+
+
 
 TEMPLATES = [
     {

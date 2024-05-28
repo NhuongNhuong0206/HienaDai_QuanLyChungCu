@@ -71,7 +71,6 @@ class People(BaseModel):
     ApartNum = models.CharField(max_length=20, null=True)  # Số nhà
     identification_card = models.CharField(max_length=20, null=True)# Số căng cước công dân
 
-    # car_card = models.OneToOneField(CarCard, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE, default=None)
     box = models.ForeignKey(Box, on_delete=models.SET_NULL, null=True)
 
@@ -92,7 +91,6 @@ class CarCard(BaseModel):
                                    default=EnumStatusCard.WAIT)  # Trạng thái thẻ xe
     vehicle_type = models.CharField(max_length=255, default='motorbike')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    people = models.OneToOneField(People, on_delete=models.CASCADE, null=True)
 
 
 class Letters(BaseModel):
