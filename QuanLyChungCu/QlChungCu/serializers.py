@@ -2,7 +2,8 @@
 # Có nhiều cách khai báo serializer: + Không cần model
 #                                   + liên kết với model: ở đây sử dụng cách này
 
-from QlChungCu.models import People, User, CarCard, Box, Goods, Letters, Bill
+from QlChungCu.models import People, User, CarCard, Box, Goods, Letters, Bill, Survey, Question, Answer, \
+    SurveyResponse
 from rest_framework import serializers
 import random
 import string
@@ -29,8 +30,13 @@ class UserSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = ['id', 'username', 'password', 'avatar_acount', 'change_password_required', ]
+        fields = ['id', 'username', 'password', 'avatar_acount', 'change_password_required', 'email']
 
+class AdminSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
+        fields = ['id', 'username',]
 
 #         extra_kwargs = {# các trường chí ghi chớ không đọc
 #                 'pass_acount': {
@@ -60,17 +66,24 @@ class BoxSerializers(serializers.ModelSerializer):
 
 
 class GoodsSerializers(serializers.ModelSerializer):
+    img_goods = serializers.SerializerMethodField()
+
+    def get_img_goods(self, obj):
+        if obj.img_goods:
+            return obj.img_goods.url
+        return None
+
     class Meta:
         model = Goods
-        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = '__all__'
+        fields = ['id', 'name_goods', 'received_Goods', 'note', 'box', 'size', 'img_goods','created_date']
 
 
 class LettersSerializers(serializers.ModelSerializer):
+    user_admin = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, many=True)
+
     class Meta:
         model = Letters
-        # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
-        fields = '__all__'
+        fields = ['title_letter', 'content', 'img_letter', 'user_admin', 'people', 'created_date']
 
 
 class BillSerializers(serializers.ModelSerializer):
@@ -95,3 +108,24 @@ class PeopleSerializers(serializers.ModelSerializer):
         # filter chỉ định các trường serialize ra pare thành json để gửi ra bên ngoài để client gọi API
         fields = ['name_people', 'birthday', 'sex', 'phone', 'expiry', 'expiry', 'ApartNum', 'identification_card',]
 
+
+
+class SurveySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Survey
+        fields = '__all__'
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+class SurveyResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurveyResponse
+        fields = '__all__'
+
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        fields = '__all__'

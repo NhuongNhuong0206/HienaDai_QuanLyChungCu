@@ -25,6 +25,10 @@ cloudinary.config(
     api_secret = "achoo--NvftyIBf-7AUzdDgLMZc", # Click 'View Credentials' below to copy your API secret
     # api_proxy = "http://proxy.server:3128"
 )
+import cloudinary.uploader
+import cloudinary.api
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 import cloudinary.uploader
 import cloudinary.api
@@ -45,9 +49,10 @@ SECRET_KEY = 'django-insecure-e00(c)y-8jz=z--*5^wgx+j%_85jro1+g(3!$abw*il3wrmx@d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['6f4c-171-243-48-141.ngrok-free.app']
+# ALLOWED_HOSTS = ['4425-171-243-49-117.ngrok-free.app']
 ALLOWED_HOSTS = []
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'https://6f4c-171-243-48-141.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'https://4425-171-243-49-117.ngrok-free.app']
+# CSRF_TRUSTED_ORIGINS =['*']
 # Application definition
 
 INSTALLED_APPS = [
@@ -170,3 +175,6 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CLIENT_ID = 'JtzDKPoyGsBUuOUYAeiGOO3tZIYTrI1yOVVeXT0i'
 CLIENT_SECRET = 'KEyUJlDBu5qBIxvfDraodFSlLTt3RtokHR1LGZalCupw8YZK3cQYK7NFEH9oW1Qs9cZ4Rxbxj5DXwZvZ8lUiSGXGhiAUAMSIPwuZWIcXTm4TtcA0J9Nii64X8N5sOrkI'
+
+
+
